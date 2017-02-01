@@ -110,7 +110,13 @@ typedef NS_ENUM(NSInteger, KASlideShowSlideMode) {
 {
     _datasource = datasource;
 
-    [self reloadData];
+    if ([self.datasource slideShowImagesNumber:self]>0) {
+        [self populateImageView:_topImageView andIndex:0];
+
+        if ([self.datasource slideShowImagesNumber:self]>1) {
+            [self populateImageView:_bottomImageView andIndex:1];
+        }
+    }
 }
 
 - (void) populateImageView:(UIImageView*) imageView andIndex:(NSUInteger) index
@@ -134,19 +140,6 @@ typedef NS_ENUM(NSInteger, KASlideShowSlideMode) {
 }
 
 #pragma mark - Actions
-
-- (void) reloadData
-{
-    if (self.datasource != nil) {
-        if ([self.datasource slideShowImagesNumber:self]>0) {
-            [self populateImageView:_topImageView andIndex:0];
-            
-            if ([self.datasource slideShowImagesNumber:self]>1) {
-                [self populateImageView:_bottomImageView andIndex:1];
-            }
-        }
-    }
-}
 
 - (void) start
 {
@@ -201,6 +194,49 @@ typedef NS_ENUM(NSInteger, KASlideShowSlideMode) {
         }
     }
 }
+    
+    
+- (void) moveTo:(int)index
+    {
+        if (!self.window) return;
+        
+        if(! _isAnimating && (self.datasource && [self.datasource slideShowImagesNumber:self] >1)) {
+            
+            if ([self.delegate respondsToSelector:@selector(slideShowWillShowNext:)]) [self.delegate slideShowWillShowNext:self];
+            
+            // Next Image
+            NSUInteger nextIndex = (index)%[self.datasource slideShowImagesNumber:self];
+            [self populateImageView:_topImageView andIndex:_currentIndex];
+            [self populateImageView:_bottomImageView andIndex:nextIndex];
+            _currentIndex = nextIndex;
+            
+            // Animate
+            switch (transitionType) {
+                case KASlideShowTransitionFade:
+                [self animateFade];
+                break;
+                
+                case KASlideShowTransitionSlideHorizontal:
+                [self animateSlideHorizontal:KASlideShowSlideModeForward];
+                break;
+                
+                case KASlideShowTransitionSlideVertical:
+                [self animateSlideVertical:KASlideShowSlideModeForward];
+                break;
+                
+            }
+            
+            // Call delegate
+            if([delegate respondsToSelector:@selector(slideShowDidShowNext:)]){
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, transitionDuration * NSEC_PER_SEC);
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                    if (self.window){
+                        [delegate slideShowDidShowNext:self];
+                    }
+                });
+            }
+        }
+    }
 
 - (void) previous
 {
