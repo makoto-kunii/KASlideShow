@@ -27,7 +27,7 @@ Simply copy into your project folder :
 ###Using [cocoapods](http://cocoapods.org)
 
 add this line to your Podfile :
-`pod 'KASlideShow'`
+`pod 'KASlideShow', :git => 'https://github.com/mengheangrat/KASlideShow.git'`
 
 ##Usage
 
