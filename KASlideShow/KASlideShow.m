@@ -141,6 +141,11 @@ typedef NS_ENUM(NSInteger, KASlideShowSlideMode) {
 
 #pragma mark - Actions
 
+- (void) reset
+{
+    _currentIndex = 0;
+}
+
 - (void) start
 {
     _doStop = NO;
