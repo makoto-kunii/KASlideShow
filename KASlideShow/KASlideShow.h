@@ -59,6 +59,7 @@ typedef NS_ENUM(NSUInteger, KASlideShowState) {
 - (void) addGesture:(KASlideShowGestureType)gestureType;
 - (void) removeGestures;
 
+- (void) reset;
 - (void) start;
 - (void) stop;
 - (void) previous;
